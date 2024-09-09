@@ -1,17 +1,29 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
 
-public class Shoot : MonoBehaviour 
+public class Shoot : MonoBehaviour
 {
     public GameObject spawnPos;
-    public GameObject player;
+    public Transform player;
     AudioSource gunSound;
+    float turnSpeed = 1.0f;
     float shootCoolDown = 0;
 
-	void Start()
+    Transform myTransform;
+
+    void Start()
     {
-        player = GameObject.Find("Player");
-        gunSound = this.GetComponent<AudioSource>();
-	}
+        GameObject playerObject = GameObject.Find("Player");
+        gunSound = GetComponent<AudioSource>();
+
+        myTransform = this.transform;
+        if (playerObject)
+        {
+            player = playerObject.transform;
+            StartCoroutine(StartShoot());
+        }
+    }
 
     void ShootBullet()
     {
@@ -19,29 +31,31 @@ public class Shoot : MonoBehaviour
         gunSound.Play();
     }
 
-    float turnSpeed = 1.0f;
-
-
-	void Update() 
+    private void Update()
     {
-
         if (player)
         {
-            Vector3 direction = player.transform.position - this.transform.position;
-            this.transform.rotation = Quaternion.Slerp(this.transform.rotation,
-                                Quaternion.LookRotation(direction),
+            myTransform.rotation = Quaternion.Slerp(myTransform.rotation,
+                                Quaternion.LookRotation(player.position - myTransform.position),
                                 turnSpeed * Time.smoothDeltaTime);
-            
-            if (shootCoolDown <= 0)
-            {
-                ShootBullet();
-                shootCoolDown = Random.Range(3,5);
-            }
-            
-            else
-            {
-                shootCoolDown -= 0.1f;
-            }
         }
-	}
-}
+
+    }
+
+
+    IEnumerator StartShoot()
+    {
+        while (true)
+        {
+
+
+            ShootBullet();
+            shootCoolDown = Random.Range(3, 5);
+
+
+
+            yield return new WaitForSeconds(shootCoolDown);
+        }
+    }
+ }
+

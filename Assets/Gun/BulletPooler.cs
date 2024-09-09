@@ -47,19 +47,17 @@ public class BulletPooler : MonoBehaviour
 
     public GameObject SpawnFromPool(string tag, Vector3 position, Quaternion rotation)
     {
-        if (!poolDictionary.ContainsKey(tag))
+        if (!poolDictionary.ContainsKey(tag) || poolDictionary[tag].Count == 1 )
         {
-            Debug.LogWarning("Pool tag: " + tag + " not found");
             return null;
         }
         
         GameObject objectToSpawn = poolDictionary[tag].Dequeue();
+
         objectToSpawn.SetActive(true);
         objectToSpawn.transform.position = position;
         objectToSpawn.transform.rotation = rotation;
-        
-        poolDictionary[tag].Enqueue(objectToSpawn);
-        
+                
         return objectToSpawn;
     }
     
